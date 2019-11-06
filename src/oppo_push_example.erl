@@ -15,27 +15,27 @@ batch_send_test()->
   oppo_push:batch_send(?AppKey, ?AppSecret, MapList).
 
 
-get_token(AppKey, AppSecret) ->
-%%  crypto:start(),
-%%  Type = sha,
-%%  Context = crypto:hmac_init(Type, Key),
-%%  NewContext = crypto:hmac_update(Context, erlang:list_to_binary(String)),
-%%  Mac = crypto:hmac_final(NewContext),
-%%  url_encode(base64:encode_to_string(Mac)).
-%%  Sign = crypto:hmac(sha256, AppSecret, lists:c) -> Mac
+%%get_token(AppKey, AppSecret) ->
+%%%%  crypto:start(),
+%%%%  Type = sha,
+%%%%  Context = crypto:hmac_init(Type, Key),
+%%%%  NewContext = crypto:hmac_update(Context, erlang:list_to_binary(String)),
+%%%%  Mac = crypto:hmac_final(NewContext),
+%%%%  url_encode(base64:encode_to_string(Mac)).
+%%%%  Sign = crypto:hmac(sha256, AppSecret, lists:c) -> Mac
+%%%%  Timestamp = erlang:system_time(second) * 1000,
 %%  Timestamp = erlang:system_time(second) * 1000,
-  Timestamp = erlang:system_time(second) * 1000,
-  crypto:start(),
-  Sign = base64:encode_to_string(crypto:hash(sha256, lists:concat([eutil:to_list(AppKey), Timestamp, eutil:to_list(AppSecret)]))),
-  MsgMap = #{<<"app_key">> => AppKey, <<"sign">> => Sign, <<"timestamp">> => Timestamp},
-  URL = <<"https://api.push.oppomobile.com/server/v1/auth">>,
-  case eutil:http_post(URL, [?URLENCEDED_HEAD], MsgMap, [{pool, oppo}]) of
-    #{<<"code">> := ?SUCCESS, <<"data">> := #{<<"auth_token">> := Token}} ->
-      {ok, Token};
-    Other ->
-      error_logger:error_msg("epush oppo get token error, URL: ~p, MsgMaps: ~p, Result: ~p", [URL, MsgMap, Other]),
-      {error, Other}
-  end.
+%%  crypto:start(),
+%%  Sign = base64:encode_to_string(crypto:hash(sha256, lists:concat([eutil:to_list(AppKey), Timestamp, eutil:to_list(AppSecret)]))),
+%%  MsgMap = #{<<"app_key">> => AppKey, <<"sign">> => Sign, <<"timestamp">> => Timestamp},
+%%  URL = <<"https://api.push.oppomobile.com/server/v1/auth">>,
+%%  case eutil:http_post(URL, [?URLENCEDED_HEAD], MsgMap, [{pool, oppo}]) of
+%%    #{<<"code">> := ?SUCCESS, <<"data">> := #{<<"auth_token">> := Token}} ->
+%%      {ok, Token};
+%%    Other ->
+%%      error_logger:error_msg("epush oppo get token error, URL: ~p, MsgMaps: ~p, Result: ~p", [URL, MsgMap, Other]),
+%%      {error, Other}
+%%  end.
 
 %%do_send(PayloadMaps) ->
 %%  Method = post,
