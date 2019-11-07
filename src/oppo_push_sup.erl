@@ -48,7 +48,7 @@ init([]) ->
 
 %%    oppo_push:general_notification(<<"63bece657e514f6f99f440a5705a67ef">>,
 %%        <<"8cc6f44d48ef4e60bdb81ff013574873">>, <<"435455435">>, <<"Title">>, <<"Desc">>),
-    oppo_push:get_token(<<"63bece657e514f6f99f440a5705a67ef">>, <<"8cc6f44d48ef4e60bdb81ff013574873">>),
+%%    oppo_push:get_token(<<"63bece657e514f6f99f440a5705a67ef">>, <<"8cc6f44d48ef4e60bdb81ff013574873">>),
     {ok, { {one_for_all, 0, 1}, []} }.
 
 %%====================================================================

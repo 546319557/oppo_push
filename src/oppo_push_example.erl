@@ -11,7 +11,7 @@ single_send_test()->
   oppo_push:single_send(?AppKey, ?AppSecret, ?REGID, ?TITLE, ?DESC).
 
 batch_send_test()->
-  MapList = [#{<<"regIds">> => ?REGID, <<"title">> => ?TITLE, <<"content">> => ?DESC}],
+  MapList = [#{<<"regId">> => ?REGID, <<"title">> => ?TITLE, <<"content">> => ?DESC}],
   oppo_push:batch_send(?AppKey, ?AppSecret, MapList).
 
 

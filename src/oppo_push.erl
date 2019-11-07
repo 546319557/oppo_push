@@ -15,12 +15,13 @@
 -include_lib("eutil/include/eutil.hrl").
 
 -define(SUCCESS, 0).
+-define(TargetType, 2).
 
-general_notification(AppKey, AppSecret, RegIds, Title, Content)->
-  single_send(AppKey, AppSecret, RegIds, Title, Content).
+general_notification(AppKey, AppSecret, RegId, Title, Content)->
+  single_send(AppKey, AppSecret, RegId, Title, Content).
 
-general_app_msg(AppKey, AppSecret, RegIds, Title, Content)->
-  single_send(AppKey, AppSecret, RegIds, Title, Content).
+general_app_msg(AppKey, AppSecret, RegId, Title, Content)->
+  single_send(AppKey, AppSecret, RegId, Title, Content).
 
 get_conf_app_key() ->
   {ok, AppKey} = application:get_env(oppo_push, app_key),
@@ -38,33 +39,33 @@ batch_send(Maps) ->
 batch_send(AppKey, AppSecret, MapList) ->
   case get_token(AppKey, AppSecret) of
     {ok, Token} ->
-      F =  fun(#{<<"regIds">> := RegIds, <<"title">> := Title, <<"content">> := Content}, Acc) ->
+      F =  fun(#{<<"regId">> := RegId, <<"title">> := Title, <<"content">> := Content}, Acc) ->
         Notification = #{<<"title">> => unicode:characters_to_binary(Title), <<"content">> => unicode:characters_to_binary(Content)},
-        Message = #{<<"target_type">> => 2, <<"target_value">> => RegIds, <<"notification">> => eutil:json_encode(Notification)},
+        Message = #{<<"target_type">> => ?TargetType, <<"target_value">> => RegId, <<"notification">> => eutil:json_encode(Notification)},
         [Message | Acc]
           end,
       MsgMap = #{<<"message">> => eutil:json_encode(lists:fold(F, [], MapList))},
       URL = <<"https://api.push.oppomobile.com/server/v1/message/notification/unicast_batch">>,
       send(Token, URL, MsgMap);
-    _ ->
-      {error, #{<<"code">> => 28, <<"message">> => <<"get token error">>}}
+    Error ->
+      Error
   end.
 
-single_send(RegIds, Title, Desc) ->
+single_send(RegId, Title, Desc) ->
   AppKey = get_conf_app_key(),
   AppSecret = get_conf_app_secret(),
-  single_send(AppKey, AppSecret, RegIds, Title, Desc).
+  single_send(AppKey, AppSecret, RegId, Title, Desc).
 
-single_send(AppKey, AppSecret, RegIds, Title, Desc) ->
+single_send(AppKey, AppSecret, RegId, Title, Desc) ->
   case get_token(AppKey, AppSecret) of
     {ok, Token} ->
       Notification = #{<<"title">> => unicode:characters_to_binary(Title), <<"content">> => unicode:characters_to_binary(Desc)},
-      Message = #{<<"target_type">> => 2, <<"target_value">> => RegIds, <<"notification">> => eutil:json_encode(Notification)},
+      Message = #{<<"target_type">> => ?TargetType, <<"target_value">> => RegId, <<"notification">> => eutil:json_encode(Notification)},
       MsgMap = #{<<"message">> =>eutil:json_encode(Message)},
       URL = <<"https://api.push.oppomobile.com/server/v1/message/notification/unicast">>,
       send(Token, URL, MsgMap);
-    _ ->
-      {error, #{<<"code">> => 28, <<"message">> => <<"get token error">>}}
+    Error ->
+      Error
   end.
 
 gen_headers(Token) ->
@@ -89,7 +90,7 @@ get_token(AppKey, AppSecret) ->
   Sign = base64:encode_to_string(crypto:hash(sha256, lists:concat([eutil:to_list(AppKey), Timestamp, eutil:to_list(AppSecret)]))),
   MsgMap = #{<<"app_key">> => AppKey, <<"sign">> => Sign, <<"timestamp">> => Timestamp},
   URL = <<"https://api.push.oppomobile.com/server/v1/auth">>,
-  case eutil:http_post(URL, [?URLENCEDED_HEAD], MsgMap, [{pool, oppo}]) of
+  case eutil:http_post(URL, ?URLENCEDED_HEADS, MsgMap, [{pool, oppo}]) of
     #{<<"code">> := ?SUCCESS, <<"data">> := #{<<"auth_token">> := Token}} ->
       {ok, Token};
     Other ->
